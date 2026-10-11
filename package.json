@@ -1,0 +1,23 @@
+{
+  "name": "com.rpgframework.modulerouter",
+  "version": "0.1.0",
+  "displayName": "RPG Framework Module Router",
+  "description": "The default router between the RPG Framework's modules: which module follows what happened in another, and whether it opens over it, closes, replaces it or clears them all",
+  "unity": "6000.6",
+  "keywords": [
+    "RPG Framework",
+    "Modules",
+    "Router"
+  ],
+  "author": {
+    "name": "Elliott Armstrong",
+    "url": "https://github.com/KandyMan1990/RPGFramework.ModuleRouter"
+  },
+  "dependencies": {
+    "com.rpgframework.core": "0.8.0",
+    "com.rpgframework.core.sharedtypes": "0.3.0",
+    "com.rpgframework.field.sharedtypes": "0.3.0",
+    "com.rpgframework.menu.sharedtypes": "0.3.0",
+    "com.rpgframework.battle.sharedtypes": "0.2.0"
+  }
+}

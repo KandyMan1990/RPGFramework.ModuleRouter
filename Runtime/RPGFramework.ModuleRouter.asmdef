@@ -1,0 +1,20 @@
+{
+    "name": "RPGFramework.ModuleRouter",
+    "rootNamespace": "RPGFramework.ModuleRouter",
+    "references": [
+        "RPGFramework.Battle.SharedTypes",
+        "RPGFramework.Core",
+        "RPGFramework.Core.SharedTypes",
+        "RPGFramework.Field.SharedTypes",
+        "RPGFramework.Menu.SharedTypes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
