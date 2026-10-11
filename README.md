@@ -4,8 +4,9 @@ The default router between the RPG Framework's modules. A module finishing tells
 game's `IModuleRouter` what follows, and carries it out. This package's `DefaultModuleRouter` holds the framework's own
 routes, and a game derives from it for its own.
 
-Requires Unity 6000.6 or newer, RPGFramework.Core and the Core, Field, Menu and Battle shared types — and none of the
-modules themselves, so they stay isolated: the router sits above them, as the game's installer does.
+Requires Unity 6000.6 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu and Battle shared
+types — and none of the modules themselves, so they stay isolated: the router sits above them, as the game's installer
+does.
 
 ---
 
@@ -15,11 +16,16 @@ modules themselves, so they stay isolated: the router sits above them, as the ga
 | --- | --- | --- |
 | Field | `FieldOutcomes.OPEN_MENU` | the menu opens over the field, which stays loaded and frozen |
 | Menu | `MenuOutcomes.CLOSED` | the menu closes, and whatever it opened over resumes |
-| Field | `FieldOutcomes.START_BATTLE` | the battle replaces the field |
+| Field | `FieldOutcomes.START_BATTLE` | the battle replaces the field, after the music is handed over (below) |
 | Battle | `BattleOutcomes.FINISHED` | the field it replaced comes back, carrying on from where it was |
 | Menu | `MenuOutcomes.PLAYTHROUGH` | everything is cleared, and the playthrough's module — `ICurrentModuleStore` — is entered afresh |
 
 Any other outcome throws, naming the module and the outcome, so a route nobody wrote is found on its first use.
+
+**The music as a battle begins.** While the field is still on screen, the router pauses the music playing and starts
+the battle music — `IBattleMusicStore`'s, the track every battle plays until a script sets another, or none if it is
+zero. The paused song goes in Core's `IPausedMusicStore`, and the field resumes it as the battle returns to it. A
+battle with `BattleFlags.USE_CURRENT_MUSIC` leaves the music playing, and nothing is paused.
 
 ## Using it
 
@@ -33,7 +39,12 @@ container.BindSingleton<IModuleRouter, GameModuleRouter>();
 ```csharp
 public sealed class GameModuleRouter : DefaultModuleRouter
 {
-    public GameModuleRouter(ICurrentModuleStore currentModuleStore) : base(currentModuleStore)
+    public GameModuleRouter(ICurrentModuleStore currentModuleStore,
+                            IBattleArgsStore    battleArgsStore,
+                            IBattleMusicStore   battleMusicStore,
+                            IPausedMusicStore   pausedMusicStore,
+                            IMusicPlayer        musicPlayer)
+        : base(currentModuleStore, battleArgsStore, battleMusicStore, pausedMusicStore, musicPlayer)
     {
     }
 
@@ -65,5 +76,5 @@ Each takes how the module is entered, `ModuleEntries.NEW` unless it is returning
 
 ## Not in this version
 
-- **Game over**, a battle from the menu, the field's music kept across a battle, and the naming and tutorial screens
-  after one are planned routes, not yet built.
+- **Game over**, a battle from the menu, and the naming and tutorial screens after one are planned routes, not yet
+  built.
