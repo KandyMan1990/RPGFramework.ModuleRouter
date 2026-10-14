@@ -17,7 +17,9 @@ does.
 | Field | `FieldOutcomes.OPEN_MENU` | the menu opens over the field, which stays loaded and frozen |
 | Menu | `MenuOutcomes.CLOSED` | the menu closes, and whatever it opened over resumes |
 | Field | `FieldOutcomes.START_BATTLE` | the battle replaces the field, after the music is handed over (below) |
-| Battle | `BattleOutcomes.FINISHED` | the field it replaced comes back, carrying on from where it was |
+| Battle | `BattleOutcomes.FINISHED`, won or escaped | the field it replaced comes back, carrying on from where it was |
+| Battle | `BattleOutcomes.FINISHED`, lost or out of time | the game-over field — `IGameOverFieldStore`'s — entered afresh, unless the battle mode allows it (below), when the field comes back as after a win |
+| Field | `FieldOutcomes.GAME_OVER` | everything is cleared, and the menu is entered at its title, `MenuType.Begin` |
 | Menu | `MenuOutcomes.PLAYTHROUGH` | everything is cleared, and the playthrough's module — `ICurrentModuleStore` — is entered afresh |
 
 Any other outcome throws, naming the module and the outcome, so a route nobody wrote is found on its first use.
@@ -26,6 +28,14 @@ Any other outcome throws, naming the module and the outcome, so a route nobody w
 the battle music — `IBattleMusicStore`'s, the track every battle plays until a script sets another, or none if it is
 zero. The paused song goes in Core's `IPausedMusicStore`, and the field resumes it as the battle returns to it. A
 battle with `BattleFlags.USE_CURRENT_MUSIC` leaves the music playing, and nothing is paused.
+
+**Losing a battle.** Whether a defeat, or a countdown running out, ends the game is the battle mode's to say —
+`IBattleModeStore`, a saved setting a script changes — through `BattleFlags.DISABLE_GAME_OVER_ON_DEFEAT` and
+`DISABLE_GAME_OVER_ON_TIME_OUT`, read after every battle; one battle's own flags never decide it. How the battle ended is
+`IBattleCompleteStateStore`'s, which the field's scripts read too.
+
+**The music on the way out.** Heading to a game over, to the title, or to a playthrough begun or loaded, the router
+fades the music out over two seconds, under the screen fading out; the next module brings its own.
 
 ## Using it
 
@@ -39,12 +49,18 @@ container.BindSingleton<IModuleRouter, GameModuleRouter>();
 ```csharp
 public sealed class GameModuleRouter : DefaultModuleRouter
 {
-    public GameModuleRouter(ICurrentModuleStore currentModuleStore,
-                            IBattleArgsStore    battleArgsStore,
-                            IBattleMusicStore   battleMusicStore,
-                            IPausedMusicStore   pausedMusicStore,
-                            IMusicPlayer        musicPlayer)
-        : base(currentModuleStore, battleArgsStore, battleMusicStore, pausedMusicStore, musicPlayer)
+    public GameModuleRouter(ICurrentModuleStore       currentModuleStore,
+                            IBattleArgsStore          battleArgsStore,
+                            IBattleModeStore          battleModeStore,
+                            IBattleCompleteStateStore battleCompleteStateStore,
+                            IBattleMusicStore         battleMusicStore,
+                            IPausedMusicStore         pausedMusicStore,
+                            IFieldArgsStore           fieldArgsStore,
+                            IGameOverFieldStore       gameOverFieldStore,
+                            IMenuArgsStore            menuArgsStore,
+                            IMusicPlayer              musicPlayer)
+        : base(currentModuleStore, battleArgsStore, battleModeStore, battleCompleteStateStore, battleMusicStore,
+               pausedMusicStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer)
     {
     }
 
@@ -76,5 +92,5 @@ Each takes how the module is entered, `ModuleEntries.NEW` unless it is returning
 
 ## Not in this version
 
-- **Game over**, a battle from the menu, and the naming and tutorial screens after one are planned routes, not yet
-  built.
+- **A battle from the menu**, and the naming and tutorial screens after a battle, are planned routes, not yet built.
+- **Trying a battle again, or carrying on from a checkpoint**, after a game over, are planned and not built.
