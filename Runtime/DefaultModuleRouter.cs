@@ -7,6 +7,7 @@ using RPGFramework.Battle.SharedTypes.Stores;
 using RPGFramework.Core;
 using RPGFramework.Core.SharedTypes;
 using RPGFramework.Core.Store;
+using RPGFramework.Core.Transitions;
 using RPGFramework.Field.SharedTypes.Constants;
 using RPGFramework.Field.SharedTypes.Stores;
 using RPGFramework.Menu.SharedTypes;
@@ -19,14 +20,13 @@ namespace RPGFramework.ModuleRouter
     /// The framework's own routes between its modules: the menu over the field and closing back to it, a battle replacing
     /// the field and returning to it, a lost battle going to the game-over field unless the battle mode allows the loss,
     /// a game over going back to the title, and a playthrough begun or loaded from the menu. As a battle begins, the
-    /// music playing is paused for the field to resume and the battle music started; leaving a playthrough or heading
-    /// to a game over fades the music out. A game derives from it for routes of its own, overriding <see cref="Route" />
-    /// and passing the rest to the base.
+    /// music playing is paused for the field to resume and the battle music started. Each route's transitions, and
+    /// whether it fades the music out as its cover starts, are the game's <see cref="IModuleRouterConfig" />'s, and a
+    /// battle may name its own cover. A game derives from it for routes of its own, overriding <see cref="Route" /> and
+    /// passing the rest to the base.
     /// </summary>
     public class DefaultModuleRouter : IModuleRouter
     {
-        private const float MUSIC_FADE_OUT_SECONDS = 2f;
-
         private readonly ICurrentModuleStore       m_CurrentModuleStore;
         private readonly IBattleArgsStore          m_BattleArgsStore;
         private readonly IBattleModeStore          m_BattleModeStore;
@@ -37,6 +37,8 @@ namespace RPGFramework.ModuleRouter
         private readonly IGameOverFieldStore       m_GameOverFieldStore;
         private readonly IMenuArgsStore            m_MenuArgsStore;
         private readonly IMusicPlayer              m_MusicPlayer;
+        private readonly IModuleRouterConfig       m_Config;
+        private readonly ITransitionService        m_Transitions;
 
         // Where a battle goes back to: the module it replaced.
         private byte m_ReturnModuleId;
@@ -50,7 +52,9 @@ namespace RPGFramework.ModuleRouter
                                    IFieldArgsStore           fieldArgsStore,
                                    IGameOverFieldStore       gameOverFieldStore,
                                    IMenuArgsStore            menuArgsStore,
-                                   IMusicPlayer              musicPlayer)
+                                   IMusicPlayer              musicPlayer,
+                                   IModuleRouterConfig       config,
+                                   ITransitionService        transitions)
         {
             m_CurrentModuleStore       = currentModuleStore;
             m_BattleArgsStore          = battleArgsStore;
@@ -62,6 +66,8 @@ namespace RPGFramework.ModuleRouter
             m_GameOverFieldStore       = gameOverFieldStore;
             m_MenuArgsStore            = menuArgsStore;
             m_MusicPlayer              = musicPlayer;
+            m_Config                   = config;
+            m_Transitions              = transitions;
         }
 
         ModuleChange IModuleRouter.Route(byte moduleId, byte outcome)
@@ -104,17 +110,16 @@ namespace RPGFramework.ModuleRouter
             switch (outcome)
             {
                 case FieldOutcomes.OPEN_MENU:
-                    change = ModuleChange.Over(MenuConstants.MODULE_ID);
+                    change = Take(m_Config.MenuOpening, ModuleChange.Over(MenuConstants.MODULE_ID));
                     break;
                 case FieldOutcomes.START_BATTLE:
                     m_ReturnModuleId = FieldConstants.MODULE_ID;
                     StartBattleMusic();
-                    change = ModuleChange.Replace(BattleConstants.MODULE_ID);
+                    change = StartBattle();
                     break;
                 case FieldOutcomes.GAME_OVER:
-                    FadeMusicOut();
                     m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
-                    change = ModuleChange.Clear(MenuConstants.MODULE_ID);
+                    change = Take(m_Config.GameOver, ModuleChange.Clear(MenuConstants.MODULE_ID));
                     break;
                 default:
                     throw NoRoute(FieldConstants.MODULE_ID, outcome);
@@ -130,11 +135,10 @@ namespace RPGFramework.ModuleRouter
             switch (outcome)
             {
                 case MenuOutcomes.CLOSED:
-                    change = ModuleChange.Close();
+                    change = Take(m_Config.MenuClosing, ModuleChange.Close());
                     break;
                 case MenuOutcomes.PLAYTHROUGH:
-                    FadeMusicOut();
-                    change = ModuleChange.Clear(m_CurrentModuleStore.ModuleId);
+                    change = Take(m_Config.Playthrough, ModuleChange.Clear(m_CurrentModuleStore.ModuleId));
                     break;
                 default:
                     throw NoRoute(MenuConstants.MODULE_ID, outcome);
@@ -154,13 +158,12 @@ namespace RPGFramework.ModuleRouter
 
             if (IsGameOver())
             {
-                FadeMusicOut();
                 m_FieldArgsStore.Set(m_GameOverFieldStore.Args);
-                change = ModuleChange.Replace(FieldConstants.MODULE_ID);
+                change = Take(m_Config.Defeat, ModuleChange.Replace(FieldConstants.MODULE_ID));
             }
             else
             {
-                change = ModuleChange.Replace(m_ReturnModuleId, ModuleEntries.RETURN);
+                change = Take(m_Config.BattleEnding, ModuleChange.Replace(m_ReturnModuleId, ModuleEntries.RETURN));
             }
 
             return change;
@@ -182,6 +185,48 @@ namespace RPGFramework.ModuleRouter
             return gameOver;
         }
 
+        // The battle's own cover, if it names one, over the route's.
+        private ModuleChange StartBattle()
+        {
+            RouteTransition route  = m_Config.BattleStarting;
+            ModuleChange    change = route.Apply(ModuleChange.Replace(BattleConstants.MODULE_ID));
+            ulong           cover  = m_BattleArgsStore.Args.Transition;
+
+            if (cover != 0)
+            {
+                change = change.WithTransitions(cover, change.Reveal);
+            }
+
+            FadeMusicOut(route, change.Cover);
+
+            return change;
+        }
+
+        private ModuleChange Take(RouteTransition route, ModuleChange change)
+        {
+            ModuleChange taken = route.Apply(change);
+
+            FadeMusicOut(route, taken.Cover);
+
+            return taken;
+        }
+
+        // Routed in the frame Core starts the cover, so a fade timed to the cover runs with it. Not awaited: a fade of
+        // its own may run on past the reveal.
+        private void FadeMusicOut(RouteTransition route, ulong cover)
+        {
+            if (route.MusicFade == MusicFade.None)
+            {
+                return;
+            }
+
+            float seconds = route.MusicFade == MusicFade.WithCover
+                                ? m_Transitions.CoverSeconds(cover)
+                                : route.MusicFadeSeconds;
+
+            m_MusicPlayer.StopAsync(seconds).FireAndForget();
+        }
+
         // While the module the battle replaces is still on screen, as the battle's transition begins.
         private void StartBattleMusic()
         {
@@ -199,12 +244,6 @@ namespace RPGFramework.ModuleRouter
             {
                 m_MusicPlayer.PlayAsync(battleMusic).FireAndForget();
             }
-        }
-
-        // Under the screen fading out, as the next module brings its own music.
-        private void FadeMusicOut()
-        {
-            m_MusicPlayer.StopAsync(MUSIC_FADE_OUT_SECONDS).FireAndForget();
         }
 
         private static InvalidOperationException NoRoute(byte moduleId, byte outcome)

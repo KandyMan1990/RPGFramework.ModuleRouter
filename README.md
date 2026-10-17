@@ -34,8 +34,14 @@ battle with `BattleFlags.USE_CURRENT_MUSIC` leaves the music playing, and nothin
 `DISABLE_GAME_OVER_ON_TIME_OUT`, read after every battle; one battle's own flags never decide it. How the battle ended is
 `IBattleCompleteStateStore`'s, which the field's scripts read too.
 
-**The music on the way out.** Heading to a game over, to the title, or to a playthrough begun or loaded, the router
-fades the music out over two seconds, under the screen fading out; the next module brings its own.
+**Transitions and the music on the way out are yours to set.** Bind a **Module Router Config** (Create > RPG
+Framework > Module Router Config) as `IModuleRouterConfig`. For each route — the menu opening and closing, a battle
+starting and ending, a defeat, a game over, a playthrough — it holds the transition that covers the screen and the one
+that reveals it, either left empty for your Transition Config's defaults, and whether the music fades out as the cover
+starts: not at all, over the cover, or over seconds of its own, which can run on past the reveal. Core carries the
+transitions out; the router fades the music, asking Core's `ITransitionService` how long the cover takes. **A battle may name
+its own cover** — a field script's `START_BATTLE` names one — and it is used over the route's, which is how a boss
+battle gets its own.
 
 ## Using it
 
@@ -58,9 +64,11 @@ public sealed class GameModuleRouter : DefaultModuleRouter
                             IFieldArgsStore           fieldArgsStore,
                             IGameOverFieldStore       gameOverFieldStore,
                             IMenuArgsStore            menuArgsStore,
-                            IMusicPlayer              musicPlayer)
+                            IMusicPlayer              musicPlayer,
+                            IModuleRouterConfig       config,
+                            ITransitionService        transitions)
         : base(currentModuleStore, battleArgsStore, battleModeStore, battleCompleteStateStore, battleMusicStore,
-               pausedMusicStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer)
+               pausedMusicStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer, config, transitions)
     {
     }
 
@@ -88,7 +96,8 @@ A route answers with a `ModuleChange`:
 - **`Clear`** exits them all and enters another alone.
 
 Each takes how the module is entered, `ModuleEntries.NEW` unless it is returning to a module a battle replaced, with
-`ModuleEntries.RETURN`.
+`ModuleEntries.RETURN`. `WithTransitions` names the transitions that cover and reveal it, by the hash of their names in
+your transition database (`TransitionAsset.NameHash`).
 
 ## Not in this version
 
