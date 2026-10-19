@@ -99,6 +99,19 @@ Each takes how the module is entered, `ModuleEntries.NEW` unless it is returning
 `ModuleEntries.RETURN`. `WithTransitions` names the transitions that cover and reveal it, by the hash of their names in
 your transition database (`TransitionAsset.NameHash`).
 
+## Tests
+
+The tests are in `Tests/Editor`, on Unity's Test Framework. They compile only in a project that lists the package as
+testable: add it to `testables` in `Packages/manifest.json`,
+
+```json
+"testables": [
+  "com.rpgframework.modulerouter"
+]
+```
+
+then open **Window › General › Test Runner** and run the **EditMode** tests.
+
 ## Not in this version
 
 - **A battle from the menu**, and the naming and tutorial screens after a battle, are planned routes, not yet built.

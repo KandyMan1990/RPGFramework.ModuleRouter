@@ -1,0 +1,28 @@
+{
+    "name": "RPGFramework.ModuleRouter.Tests",
+    "rootNamespace": "RPGFramework.ModuleRouter.Tests",
+    "references": [
+        "RPGFramework.Audio",
+        "RPGFramework.Battle.SharedTypes",
+        "RPGFramework.Core",
+        "RPGFramework.Core.SharedTypes",
+        "RPGFramework.Field.SharedTypes",
+        "RPGFramework.Menu.SharedTypes",
+        "RPGFramework.ModuleRouter"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
