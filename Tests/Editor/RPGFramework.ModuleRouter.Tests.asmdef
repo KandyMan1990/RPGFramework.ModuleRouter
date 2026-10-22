@@ -6,6 +6,7 @@
         "RPGFramework.Battle.SharedTypes",
         "RPGFramework.Core",
         "RPGFramework.Core.SharedTypes",
+        "RPGFramework.DebugRoom.SharedTypes",
         "RPGFramework.Field.SharedTypes",
         "RPGFramework.Menu.SharedTypes",
         "RPGFramework.ModuleRouter"

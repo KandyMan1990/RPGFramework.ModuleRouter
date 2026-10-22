@@ -4,9 +4,9 @@ The default router between the RPG Framework's modules. A module finishing tells
 game's `IModuleRouter` what follows, and carries it out. This package's `DefaultModuleRouter` holds the framework's own
 routes, and a game derives from it for its own.
 
-Requires Unity 6000.6 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu and Battle shared
-types — and none of the modules themselves, so they stay isolated: the router sits above them, as the game's installer
-does.
+Requires Unity 6000.6 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu, Battle and Debug Room
+shared types — and none of the modules themselves, so they stay isolated: the router sits above them, as the game's
+installer does.
 
 ---
 
@@ -23,6 +23,16 @@ does.
 | Menu | `MenuOutcomes.PLAYTHROUGH` | everything is cleared, and the playthrough's module — `ICurrentModuleStore` — is entered afresh |
 
 Any other outcome throws, naming the module and the outcome, so a route nobody wrote is found on its first use.
+
+**The debug room's routes**, compiled only with `ENABLE_RPG_FRAMEWORK_DEBUG` (the Debug Room package), take Core's own
+transitions and add nothing to your config:
+
+| From | What happened | What follows |
+| --- | --- | --- |
+| Menu | `DebugMenuOutcomes.DEBUG_ROOM` | the room replaces the menu, the music playing on |
+| Debug room | `DebugRoomOutcomes.CLOSED` | the menu replaces the room, at its title |
+| Debug room | `DebugRoomOutcomes.FIELD` | everything is cleared and the field is entered afresh, as a playthrough begins |
+| Debug room | `DebugRoomOutcomes.BATTLE` | the battle replaces the room, as from the field, and comes back to it |
 
 **The music as a battle begins.** While the field is still on screen, the router pauses the music playing and starts
 the battle music — `IBattleMusicStore`'s, the track every battle plays until a script sets another, or none if it is

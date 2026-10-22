@@ -19,6 +19,7 @@
     "com.rpgframework.core.sharedtypes": "0.3.0",
     "com.rpgframework.field.sharedtypes": "0.3.0",
     "com.rpgframework.menu.sharedtypes": "0.3.0",
-    "com.rpgframework.battle.sharedtypes": "0.2.0"
+    "com.rpgframework.battle.sharedtypes": "0.2.0",
+    "com.rpgframework.debugroom.sharedtypes": "0.1.0"
   }
 }

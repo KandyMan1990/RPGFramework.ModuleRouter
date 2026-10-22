@@ -8,6 +8,9 @@ using RPGFramework.Core;
 using RPGFramework.Core.SharedTypes;
 using RPGFramework.Core.Store;
 using RPGFramework.Core.Transitions;
+#if ENABLE_RPG_FRAMEWORK_DEBUG
+using RPGFramework.DebugRoom.SharedTypes.Constants;
+#endif
 using RPGFramework.Field.SharedTypes.Constants;
 using RPGFramework.Field.SharedTypes.Stores;
 using RPGFramework.Menu.SharedTypes;
@@ -96,6 +99,11 @@ namespace RPGFramework.ModuleRouter
                 case BattleConstants.MODULE_ID:
                     change = RouteFromBattle(outcome);
                     break;
+#if ENABLE_RPG_FRAMEWORK_DEBUG
+                case DebugRoomConstants.MODULE_ID:
+                    change = RouteFromDebugRoom(outcome);
+                    break;
+#endif
                 default:
                     throw NoRoute(moduleId, outcome);
             }
@@ -140,6 +148,11 @@ namespace RPGFramework.ModuleRouter
                 case MenuOutcomes.PLAYTHROUGH:
                     change = Take(m_Config.Playthrough, ModuleChange.Clear(m_CurrentModuleStore.ModuleId));
                     break;
+#if ENABLE_RPG_FRAMEWORK_DEBUG
+                case DebugMenuOutcomes.DEBUG_ROOM:
+                    change = ModuleChange.Replace(DebugRoomConstants.MODULE_ID);
+                    break;
+#endif
                 default:
                     throw NoRoute(MenuConstants.MODULE_ID, outcome);
             }
@@ -168,6 +181,35 @@ namespace RPGFramework.ModuleRouter
 
             return change;
         }
+
+#if ENABLE_RPG_FRAMEWORK_DEBUG
+        // The room is reached from the title and goes back to it; a battle from it comes back to it, as one from the
+        // field goes back there. Its routes take Core's own transitions, adding nothing to the game's config.
+        private ModuleChange RouteFromDebugRoom(byte outcome)
+        {
+            ModuleChange change;
+
+            switch (outcome)
+            {
+                case DebugRoomOutcomes.CLOSED:
+                    m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
+                    change = ModuleChange.Replace(MenuConstants.MODULE_ID);
+                    break;
+                case DebugRoomOutcomes.FIELD:
+                    change = Take(m_Config.Playthrough, ModuleChange.Clear(FieldConstants.MODULE_ID));
+                    break;
+                case DebugRoomOutcomes.BATTLE:
+                    m_ReturnModuleId = DebugRoomConstants.MODULE_ID;
+                    StartBattleMusic();
+                    change = StartBattle();
+                    break;
+                default:
+                    throw NoRoute(DebugRoomConstants.MODULE_ID, outcome);
+            }
+
+            return change;
+        }
+#endif
 
         // A defeat, or a countdown running out, ends the game unless the battle mode says otherwise.
         private bool IsGameOver()
