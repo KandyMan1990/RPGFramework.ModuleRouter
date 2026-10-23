@@ -129,6 +129,11 @@ namespace RPGFramework.ModuleRouter
                     m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
                     change = Take(m_Config.GameOver, ModuleChange.Clear(MenuConstants.MODULE_ID));
                     break;
+#if ENABLE_RPG_FRAMEWORK_DEBUG
+                case DebugFieldOutcomes.DEBUG_ROOM:
+                    change = EnterDebugRoom(ModuleChange.Clear(DebugRoomConstants.MODULE_ID));
+                    break;
+#endif
                 default:
                     throw NoRoute(FieldConstants.MODULE_ID, outcome);
             }
@@ -150,7 +155,7 @@ namespace RPGFramework.ModuleRouter
                     break;
 #if ENABLE_RPG_FRAMEWORK_DEBUG
                 case DebugMenuOutcomes.DEBUG_ROOM:
-                    change = ModuleChange.Replace(DebugRoomConstants.MODULE_ID);
+                    change = EnterDebugRoom(ModuleChange.Replace(DebugRoomConstants.MODULE_ID));
                     break;
 #endif
                 default:
@@ -183,8 +188,9 @@ namespace RPGFramework.ModuleRouter
         }
 
 #if ENABLE_RPG_FRAMEWORK_DEBUG
-        // The room is reached from the title and goes back to it; a battle from it comes back to it, as one from the
-        // field goes back there. Its routes take Core's own transitions, adding nothing to the game's config.
+        // The room is reached from the title or a field and goes back to the title; a battle from it comes back to it, as
+        // one from the field goes back there. Its routes take Core's own transitions, adding nothing to the game's
+        // config.
         private ModuleChange RouteFromDebugRoom(byte outcome)
         {
             ModuleChange change;
@@ -206,6 +212,14 @@ namespace RPGFramework.ModuleRouter
                 default:
                     throw NoRoute(DebugRoomConstants.MODULE_ID, outcome);
             }
+
+            return change;
+        }
+
+        // The music stops at once as the room is entered, so the room starts silent.
+        private ModuleChange EnterDebugRoom(ModuleChange change)
+        {
+            m_MusicPlayer.StopAsync().FireAndForget();
 
             return change;
         }

@@ -33,9 +33,9 @@ namespace RPGFramework.ModuleRouter.Tests
         }
 
         [Test]
-        public void ThenTheMusicPlaysOn()
+        public void ThenTheMusicStops()
         {
-            Assert.AreEqual(string.Empty, m_Routing.Music.Log);
+            Assert.AreEqual("stop 0.001", m_Routing.Music.Log);
         }
     }
 }

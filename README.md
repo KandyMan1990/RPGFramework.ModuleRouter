@@ -29,7 +29,8 @@ transitions and add nothing to your config:
 
 | From | What happened | What follows |
 | --- | --- | --- |
-| Menu | `DebugMenuOutcomes.DEBUG_ROOM` | the room replaces the menu, the music playing on |
+| Menu | `DebugMenuOutcomes.DEBUG_ROOM` | the music stops, and the room replaces the menu |
+| Field | `DebugFieldOutcomes.DEBUG_ROOM` | the music stops, and everything is cleared and the room entered, the playthrough carrying on |
 | Debug room | `DebugRoomOutcomes.CLOSED` | the menu replaces the room, at its title |
 | Debug room | `DebugRoomOutcomes.FIELD` | everything is cleared and the field is entered afresh, as a playthrough begins |
 | Debug room | `DebugRoomOutcomes.BATTLE` | the battle replaces the room, as from the field, and comes back to it |
