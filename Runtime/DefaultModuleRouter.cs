@@ -209,6 +209,9 @@ namespace RPGFramework.ModuleRouter
                     StartBattleMusic();
                     change = StartBattle();
                     break;
+                case DebugRoomOutcomes.SCENARIO:
+                    change = Take(m_Config.Playthrough, ModuleChange.Clear(m_CurrentModuleStore.ModuleId));
+                    break;
                 default:
                     throw NoRoute(DebugRoomConstants.MODULE_ID, outcome);
             }

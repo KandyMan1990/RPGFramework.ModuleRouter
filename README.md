@@ -34,6 +34,7 @@ transitions and add nothing to your config:
 | Debug room | `DebugRoomOutcomes.CLOSED` | the menu replaces the room, at its title |
 | Debug room | `DebugRoomOutcomes.FIELD` | everything is cleared and the field is entered afresh, as a playthrough begins |
 | Debug room | `DebugRoomOutcomes.BATTLE` | the battle replaces the room, as from the field, and comes back to it |
+| Debug room | `DebugRoomOutcomes.SCENARIO` | everything is cleared and the module the scenario was saved in entered afresh, as a playthrough begins |
 
 **The music as a battle begins.** While the field is still on screen, the router pauses the music playing and starts
 the battle music — `IBattleMusicStore`'s, the track every battle plays until a script sets another, or none if it is
