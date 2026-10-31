@@ -10,7 +10,7 @@ namespace RPGFramework.ModuleRouter.Tests.Fakes
 
         Task ITransitionService.CoverAsync(ulong transition) => Task.CompletedTask;
 
-        Task ITransitionService.RevealAsync(ulong transition) => Task.CompletedTask;
+        Task<bool> ITransitionService.RevealAsync(ulong transition) => Task.FromResult(true);
 
         float ITransitionService.CoverSeconds(ulong transition) => COVER_SECONDS;
     }
