@@ -24,6 +24,10 @@ installer does.
 
 Any other outcome throws, naming the module and the outcome, so a route nobody wrote is found on its first use.
 
+The menu starts no battle, and nothing comes between a battle and the place it returns to — no naming or tutorial
+screen. After a game over the title is the only way on: the battle cannot be tried again, nor play carried on from a
+checkpoint.
+
 **The debug room's routes**, compiled only with `ENABLE_RPG_FRAMEWORK_DEBUG` (the Debug Room package), take Core's own
 transitions and add nothing to your config:
 
@@ -126,8 +130,3 @@ testable: add it to `testables` in `Packages/manifest.json`,
 ```
 
 then open **Window › General › Test Runner** and run the **EditMode** tests.
-
-## Not in this version
-
-- **A battle from the menu**, and the naming and tutorial screens after a battle, are planned routes, not yet built.
-- **Trying a battle again, or carrying on from a checkpoint**, after a game over, are planned and not built.
