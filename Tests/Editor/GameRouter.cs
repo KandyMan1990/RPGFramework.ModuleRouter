@@ -3,25 +3,36 @@ using RPGFramework.Menu.SharedTypes.Constants;
 
 namespace RPGFramework.ModuleRouter.Tests
 {
-    /// <summary>A game's router: its own splash screen, everything else the default's.</summary>
-    internal sealed class GameRouter : DefaultModuleRouter
+    /// <summary>
+    /// A game's router: its own splash screen, a place of its own that starts battles, and everything else the
+    /// default's.
+    /// </summary>
+    internal sealed class GameRouter : IModuleRouter
     {
-        internal const byte SPLASH = 40;
+        internal const byte SPLASH     = 40;
+        internal const byte TOWN       = 41;
+        internal const byte TOWN_FIGHT = 1;
 
-        internal GameRouter(TestRouting routing)
-            : base(routing.CurrentModule, routing.BattleArgs, routing.BattleMode, routing.BattleCompleteState, routing.BattleMusic, routing.PausedMusic, routing.Countdown,
-                   routing.FieldArgs, routing.GameOverField, routing.MenuArgs, routing.Music, routing.Config, routing.Transitions)
+        private readonly IDefaultModuleRouter m_Default;
+
+        internal GameRouter(IDefaultModuleRouter defaultRouter)
         {
+            m_Default = defaultRouter;
         }
 
-        protected override ModuleChange Route(byte moduleId, byte outcome)
+        ModuleChange IModuleRouter.Route(byte moduleId, byte outcome)
         {
             if (moduleId == SPLASH)
             {
                 return ModuleChange.Clear(MenuConstants.MODULE_ID);
             }
 
-            return base.Route(moduleId, outcome);
+            if (moduleId == TOWN && outcome == TOWN_FIGHT)
+            {
+                return m_Default.StartBattle();
+            }
+
+            return m_Default.Route(moduleId, outcome);
         }
     }
 }

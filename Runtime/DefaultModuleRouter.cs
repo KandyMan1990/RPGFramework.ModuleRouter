@@ -25,10 +25,10 @@ namespace RPGFramework.ModuleRouter
     /// a game over going back to the title, and a playthrough begun or loaded from the menu. As a battle begins, the
     /// music playing is paused for the field to resume and the battle music started. Each route's transitions, and
     /// whether it fades the music out as its cover starts, are the game's <see cref="IModuleRouterConfig" />'s, and a
-    /// battle may name its own cover. A game derives from it for routes of its own, overriding <see cref="Route" /> and
-    /// passing the rest to the base.
+    /// battle may name its own cover. A game with routes of its own takes it as <see cref="IDefaultModuleRouter" /> and
+    /// hands it what it does not route.
     /// </summary>
-    public class DefaultModuleRouter : IModuleRouter
+    public sealed class DefaultModuleRouter : IDefaultModuleRouter
     {
         private readonly ICurrentModuleStore       m_CurrentModuleStore;
         private readonly IBattleArgsStore          m_BattleArgsStore;
@@ -44,7 +44,7 @@ namespace RPGFramework.ModuleRouter
         private readonly IModuleRouterConfig       m_Config;
         private readonly ITransitionService        m_Transitions;
 
-        // Where a battle goes back to: the module it replaced.
+        // Where a battle goes back to: the place it was started from, or the debug room.
         private byte m_ReturnModuleId;
 
         public DefaultModuleRouter(ICurrentModuleStore       currentModuleStore,
@@ -76,18 +76,11 @@ namespace RPGFramework.ModuleRouter
             m_Transitions              = transitions;
         }
 
-        ModuleChange IModuleRouter.Route(byte moduleId, byte outcome)
-        {
-            ModuleChange change = Route(moduleId, outcome);
+        ModuleChange IModuleRouter.Route(byte moduleId, byte outcome) => Route(moduleId, outcome);
 
-            return change;
-        }
+        ModuleChange IDefaultModuleRouter.StartBattle() => StartBattle(m_CurrentModuleStore.ModuleId);
 
-        /// <summary>
-        /// What follows <paramref name="outcome" /> from the module on top, <paramref name="moduleId" />. Throws for an
-        /// outcome with no route.
-        /// </summary>
-        protected virtual ModuleChange Route(byte moduleId, byte outcome)
+        private ModuleChange Route(byte moduleId, byte outcome)
         {
             ModuleChange change;
 
@@ -124,9 +117,7 @@ namespace RPGFramework.ModuleRouter
                     change = Take(m_Config.MenuOpening, ModuleChange.Over(MenuConstants.MODULE_ID));
                     break;
                 case FieldOutcomes.START_BATTLE:
-                    m_ReturnModuleId = FieldConstants.MODULE_ID;
-                    StartBattleMusic();
-                    change = StartBattle();
+                    change = StartBattle(m_CurrentModuleStore.ModuleId);
                     break;
                 case FieldOutcomes.GAME_OVER:
                     m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
@@ -210,9 +201,7 @@ namespace RPGFramework.ModuleRouter
                     change = Take(m_Config.Playthrough, ModuleChange.Clear(FieldConstants.MODULE_ID));
                     break;
                 case DebugRoomOutcomes.BATTLE:
-                    m_ReturnModuleId = DebugRoomConstants.MODULE_ID;
-                    StartBattleMusic();
-                    change = StartBattle();
+                    change = StartBattle(DebugRoomConstants.MODULE_ID);
                     break;
                 case DebugRoomOutcomes.SCENARIO:
                     change = Take(m_Config.Playthrough, ModuleChange.Clear(m_CurrentModuleStore.ModuleId));
@@ -260,9 +249,15 @@ namespace RPGFramework.ModuleRouter
             return gameOver;
         }
 
-        // The battle's own cover, if it names one, over the route's.
-        private ModuleChange StartBattle()
+        // Every battle starts here, and goes back to returnModuleId as it ends: the place the player is in, Core's current
+        // module, so one asked for over a place, from a menu say, goes back to that place too; or the debug room, which is
+        // not a place. The battle's own cover, if it names one, over the route's.
+        private ModuleChange StartBattle(byte returnModuleId)
         {
+            m_ReturnModuleId = returnModuleId;
+
+            StartBattleMusic();
+
             RouteTransition route  = m_Config.BattleStarting;
             ModuleChange    change = route.Apply(ModuleChange.Replace(BattleConstants.MODULE_ID));
             ulong           cover  = m_BattleArgsStore.Args.Transition;

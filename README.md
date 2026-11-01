@@ -2,7 +2,7 @@
 
 The default router between the RPG Framework's modules. A module finishing tells Core what happened; Core asks the
 game's `IModuleRouter` what follows, and carries it out. This package's `DefaultModuleRouter` holds the framework's own
-routes, and a game derives from it for its own.
+routes, and a game with routes of its own hands it what it does not route.
 
 Requires Unity 6000.6 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu, Battle and Debug Room
 shared types — and none of the modules themselves, so they stay isolated: the router sits above them, as the game's
@@ -58,50 +58,50 @@ battle gets its own.
 
 ## Using it
 
-Bind a router in your global installer. A game with modules of its own — a splash screen, say — derives from
-`DefaultModuleRouter`, routes its own, and passes the rest to the base:
+Bind the router in your global installer. With no modules of your own, bind the default as it is:
 
 ```csharp
+container.BindSingleton<IModuleRouter, DefaultModuleRouter>();
+```
+
+A game with modules of its own — a splash screen, say — writes a small router of its own that takes the default as
+**`IDefaultModuleRouter`**, routes its own outcomes and hands it the rest:
+
+```csharp
+container.BindSingleton<IDefaultModuleRouter, DefaultModuleRouter>();
 container.BindSingleton<IModuleRouter, GameModuleRouter>();
 ```
 
 ```csharp
-public sealed class GameModuleRouter : DefaultModuleRouter
+public sealed class GameModuleRouter : IModuleRouter
 {
-    public GameModuleRouter(ICurrentModuleStore       currentModuleStore,
-                            IBattleArgsStore          battleArgsStore,
-                            IBattleModeStore          battleModeStore,
-                            IBattleCompleteStateStore battleCompleteStateStore,
-                            IBattleMusicStore         battleMusicStore,
-                            IPausedMusicStore         pausedMusicStore,
-                            ICountdownStore           countdownStore,
-                            IFieldArgsStore           fieldArgsStore,
-                            IGameOverFieldStore       gameOverFieldStore,
-                            IMenuArgsStore            menuArgsStore,
-                            IMusicPlayer              musicPlayer,
-                            IModuleRouterConfig       config,
-                            ITransitionService        transitions)
-        : base(currentModuleStore, battleArgsStore, battleModeStore, battleCompleteStateStore, battleMusicStore,
-               pausedMusicStore, countdownStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer, config,
-               transitions)
+    private readonly IDefaultModuleRouter m_Default;
+
+    public GameModuleRouter(IDefaultModuleRouter defaultRouter)
     {
+        m_Default = defaultRouter;
     }
 
-    protected override ModuleChange Route(byte moduleId, byte outcome)
+    ModuleChange IModuleRouter.Route(byte moduleId, byte outcome)
     {
         if (moduleId == SplashScreenConstants.MODULE_ID)
         {
-            ModuleChange toTitle = ModuleChange.Clear(MenuConstants.MODULE_ID);
-
-            return toTitle;
+            return ModuleChange.Clear(MenuConstants.MODULE_ID);
         }
 
-        ModuleChange change = base.Route(moduleId, outcome);
+        if (moduleId == TownConstants.MODULE_ID && outcome == TownOutcomes.START_BATTLE)
+        {
+            return m_Default.StartBattle();
+        }
 
-        return change;
+        return m_Default.Route(moduleId, outcome);
     }
 }
 ```
+
+**A battle from a module of your own** goes through `StartBattle`, as the field's does: store the `BattleArgs` first,
+and the music is handed over, the battle's own cover used, and the battle comes back, as it ends, to the place the
+player is in — Core's `ICurrentModuleStore`, which a module that is a place writes on entering.
 
 A route answers with a `ModuleChange`:
 

@@ -14,7 +14,7 @@ namespace RPGFramework.ModuleRouter.Tests
         public void SetUp()
         {
             m_Routing = new TestRouting();
-            m_Router  = new GameRouter(m_Routing);
+            m_Router  = new GameRouter((IDefaultModuleRouter)m_Routing.Router());
         }
 
         [TearDown]

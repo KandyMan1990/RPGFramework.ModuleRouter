@@ -83,6 +83,9 @@ namespace RPGFramework.ModuleRouter.Tests
         /// <summary>Starts a battle from the field, and readies it to end as <paramref name="state" />.</summary>
         internal void Fight(IModuleRouter router, BattleCompleteState state, BattleFlags mode)
         {
+            // The place the battle goes back to, as the field writes itself on entering.
+            ((ICurrentModuleStore)CurrentModule).SetModuleId(FieldConstants.MODULE_ID);
+
             router.Route(FieldConstants.MODULE_ID, FieldOutcomes.START_BATTLE);
 
             ((IBattleCompleteStateStore)BattleCompleteState).Set(state);
