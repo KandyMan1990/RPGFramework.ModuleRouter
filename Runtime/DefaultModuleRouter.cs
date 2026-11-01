@@ -36,6 +36,7 @@ namespace RPGFramework.ModuleRouter
         private readonly IBattleCompleteStateStore m_BattleCompleteStateStore;
         private readonly IBattleMusicStore         m_BattleMusicStore;
         private readonly IPausedMusicStore         m_PausedMusicStore;
+        private readonly ICountdownStore           m_CountdownStore;
         private readonly IFieldArgsStore           m_FieldArgsStore;
         private readonly IGameOverFieldStore       m_GameOverFieldStore;
         private readonly IMenuArgsStore            m_MenuArgsStore;
@@ -52,6 +53,7 @@ namespace RPGFramework.ModuleRouter
                                    IBattleCompleteStateStore battleCompleteStateStore,
                                    IBattleMusicStore         battleMusicStore,
                                    IPausedMusicStore         pausedMusicStore,
+                                   ICountdownStore           countdownStore,
                                    IFieldArgsStore           fieldArgsStore,
                                    IGameOverFieldStore       gameOverFieldStore,
                                    IMenuArgsStore            menuArgsStore,
@@ -65,6 +67,7 @@ namespace RPGFramework.ModuleRouter
             m_BattleCompleteStateStore = battleCompleteStateStore;
             m_BattleMusicStore         = battleMusicStore;
             m_PausedMusicStore         = pausedMusicStore;
+            m_CountdownStore           = countdownStore;
             m_FieldArgsStore           = fieldArgsStore;
             m_GameOverFieldStore       = gameOverFieldStore;
             m_MenuArgsStore            = menuArgsStore;
@@ -174,6 +177,8 @@ namespace RPGFramework.ModuleRouter
 
             ModuleChange change;
 
+            HideRunOutCountdown();
+
             if (IsGameOver())
             {
                 m_FieldArgsStore.Set(m_GameOverFieldStore.Args);
@@ -227,6 +232,17 @@ namespace RPGFramework.ModuleRouter
             return change;
         }
 #endif
+
+        // Out of time, the countdown comes off the screen and battles stop carrying it, as hiding it does: shown at zero,
+        // the field it goes to would end the game again the moment it was back.
+        private void HideRunOutCountdown()
+        {
+            if (m_BattleCompleteStateStore.State == BattleCompleteState.OUT_OF_TIME)
+            {
+                m_CountdownStore.SetShown(false);
+                m_BattleModeStore.SetMode(m_BattleModeStore.Mode & ~BattleFlags.INHERIT_COUNTDOWN_TIMER);
+            }
+        }
 
         // A defeat, or a countdown running out, ends the game unless the battle mode says otherwise.
         private bool IsGameOver()

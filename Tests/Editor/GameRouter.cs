@@ -9,8 +9,8 @@ namespace RPGFramework.ModuleRouter.Tests
         internal const byte SPLASH = 40;
 
         internal GameRouter(TestRouting routing)
-            : base(routing.CurrentModule, routing.BattleArgs, routing.BattleMode, routing.BattleCompleteState, routing.BattleMusic, routing.PausedMusic, routing.FieldArgs,
-                   routing.GameOverField, routing.MenuArgs, routing.Music, routing.Config, routing.Transitions)
+            : base(routing.CurrentModule, routing.BattleArgs, routing.BattleMode, routing.BattleCompleteState, routing.BattleMusic, routing.PausedMusic, routing.Countdown,
+                   routing.FieldArgs, routing.GameOverField, routing.MenuArgs, routing.Music, routing.Config, routing.Transitions)
         {
         }
 

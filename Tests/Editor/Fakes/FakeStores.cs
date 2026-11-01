@@ -72,6 +72,28 @@ namespace RPGFramework.ModuleRouter.Tests.Fakes
         }
     }
 
+    internal sealed class FakeCountdownStore : ICountdownStore
+    {
+        private uint m_Seconds;
+        private bool m_Shown;
+
+        uint ICountdownStore.Seconds => m_Seconds;
+
+        void ICountdownStore.SetSeconds(uint seconds) => m_Seconds = seconds;
+
+        bool ICountdownStore.IsShown => m_Shown;
+
+        void ICountdownStore.SetShown(bool shown) => m_Shown = shown;
+
+        int ICountdownStore.X => 0;
+
+        int ICountdownStore.Y => 0;
+
+        void ICountdownStore.SetPosition(int x, int y)
+        {
+        }
+    }
+
     internal sealed class FakeFieldArgsStore : IFieldArgsStore
     {
         private FieldArgs m_Args;

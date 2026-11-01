@@ -30,6 +30,7 @@ namespace RPGFramework.ModuleRouter.Tests
         internal readonly FakeBattleCompleteStateStore BattleCompleteState;
         internal readonly FakeBattleMusicStore         BattleMusic;
         internal readonly FakePausedMusicStore         PausedMusic;
+        internal readonly FakeCountdownStore           Countdown;
         internal readonly FakeFieldArgsStore           FieldArgs;
         internal readonly FakeGameOverFieldStore       GameOverField;
         internal readonly FakeMenuArgsStore            MenuArgs;
@@ -46,6 +47,7 @@ namespace RPGFramework.ModuleRouter.Tests
             BattleCompleteState = new FakeBattleCompleteStateStore();
             BattleMusic         = new FakeBattleMusicStore();
             PausedMusic         = new FakePausedMusicStore();
+            Countdown           = new FakeCountdownStore();
             FieldArgs           = new FakeFieldArgsStore();
             GameOverField       = new FakeGameOverFieldStore(new FieldArgs(55, 3));
             MenuArgs            = new FakeMenuArgsStore();
@@ -72,8 +74,8 @@ namespace RPGFramework.ModuleRouter.Tests
 
         internal IModuleRouter Router()
         {
-            IModuleRouter router = new DefaultModuleRouter(CurrentModule, BattleArgs, BattleMode, BattleCompleteState, BattleMusic, PausedMusic, FieldArgs, GameOverField, MenuArgs,
-                                                           Music, Config, Transitions);
+            IModuleRouter router = new DefaultModuleRouter(CurrentModule, BattleArgs, BattleMode, BattleCompleteState, BattleMusic, PausedMusic, Countdown, FieldArgs,
+                                                           GameOverField, MenuArgs, Music, Config, Transitions);
 
             return router;
         }

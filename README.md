@@ -43,7 +43,8 @@ battle with `BattleFlags.USE_CURRENT_MUSIC` leaves the music playing, and nothin
 
 **Losing a battle.** Whether a defeat, or a countdown running out, ends the game is the battle mode's to say —
 `IBattleModeStore`, a saved setting a script changes — through `BattleFlags.DISABLE_GAME_OVER_ON_DEFEAT` and
-`DISABLE_GAME_OVER_ON_TIME_OUT`, read after every battle; one battle's own flags never decide it. How the battle ended is
+`DISABLE_GAME_OVER_ON_TIME_OUT`, read after every battle; one battle's own flags never decide it. When a countdown ran
+out in a battle, the router takes it off the screen (`ICountdownStore`), whether play carries on or not. How the battle ended is
 `IBattleCompleteStateStore`'s, which the field's scripts read too.
 
 **Transitions and the music on the way out are yours to set.** Bind a **Module Router Config** (Create > RPG
@@ -73,6 +74,7 @@ public sealed class GameModuleRouter : DefaultModuleRouter
                             IBattleCompleteStateStore battleCompleteStateStore,
                             IBattleMusicStore         battleMusicStore,
                             IPausedMusicStore         pausedMusicStore,
+                            ICountdownStore           countdownStore,
                             IFieldArgsStore           fieldArgsStore,
                             IGameOverFieldStore       gameOverFieldStore,
                             IMenuArgsStore            menuArgsStore,
@@ -80,7 +82,8 @@ public sealed class GameModuleRouter : DefaultModuleRouter
                             IModuleRouterConfig       config,
                             ITransitionService        transitions)
         : base(currentModuleStore, battleArgsStore, battleModeStore, battleCompleteStateStore, battleMusicStore,
-               pausedMusicStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer, config, transitions)
+               pausedMusicStore, countdownStore, fieldArgsStore, gameOverFieldStore, menuArgsStore, musicPlayer, config,
+               transitions)
     {
     }
 
