@@ -120,7 +120,7 @@ namespace RPGFramework.ModuleRouter
                     change = StartBattle(m_CurrentModuleStore.ModuleId);
                     break;
                 case FieldOutcomes.GAME_OVER:
-                    m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
+                    m_MenuArgsStore.Set(new MenuArgs(MenuIds.Begin));
                     change = Take(m_Config.GameOver, ModuleChange.Clear(MenuConstants.MODULE_ID));
                     break;
 #if ENABLE_RPG_FRAMEWORK_DEBUG
@@ -194,7 +194,7 @@ namespace RPGFramework.ModuleRouter
             switch (outcome)
             {
                 case DebugRoomOutcomes.CLOSED:
-                    m_MenuArgsStore.Set(new MenuArgs((byte)MenuType.Begin));
+                    m_MenuArgsStore.Set(new MenuArgs(MenuIds.Begin));
                     change = ModuleChange.Replace(MenuConstants.MODULE_ID);
                     break;
                 case DebugRoomOutcomes.FIELD:

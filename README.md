@@ -19,7 +19,7 @@ installer does.
 | Field | `FieldOutcomes.START_BATTLE` | the battle replaces the field, after the music is handed over (below) |
 | Battle | `BattleOutcomes.FINISHED`, won or escaped | the field it replaced comes back, carrying on from where it was |
 | Battle | `BattleOutcomes.FINISHED`, lost or out of time | the game-over field — `IGameOverFieldStore`'s — entered afresh, unless the battle mode allows it (below), when the field comes back as after a win |
-| Field | `FieldOutcomes.GAME_OVER` | everything is cleared, and the menu is entered at its title, `MenuType.Begin` |
+| Field | `FieldOutcomes.GAME_OVER` | everything is cleared, and the menu is entered at its title, `MenuIds.Begin` |
 | Menu | `MenuOutcomes.PLAYTHROUGH` | everything is cleared, and the playthrough's module — `ICurrentModuleStore` — is entered afresh |
 
 Any other outcome throws, naming the module and the outcome, so a route nobody wrote is found on its first use.

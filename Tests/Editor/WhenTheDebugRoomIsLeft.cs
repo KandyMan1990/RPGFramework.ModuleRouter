@@ -18,7 +18,7 @@ namespace RPGFramework.ModuleRouter.Tests
         {
             m_Routing = new TestRouting();
 
-            ((IMenuArgsStore)m_Routing.MenuArgs).Set(new MenuArgs((byte)MenuType.Party));
+            ((IMenuArgsStore)m_Routing.MenuArgs).Set(new MenuArgs(MenuIds.Party));
 
             m_Change = m_Routing.Router().Route(DebugRoomConstants.MODULE_ID, DebugRoomOutcomes.CLOSED);
         }
@@ -40,7 +40,7 @@ namespace RPGFramework.ModuleRouter.Tests
         [Test]
         public void ThenTheMenuOpensAtTheTitle()
         {
-            Assert.AreEqual((byte)MenuType.Begin, ((IMenuArgsStore)m_Routing.MenuArgs).Args.MenuId);
+            Assert.AreEqual(MenuIds.Begin, ((IMenuArgsStore)m_Routing.MenuArgs).Args.MenuId);
         }
     }
 }
