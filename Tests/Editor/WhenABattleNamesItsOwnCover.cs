@@ -13,7 +13,7 @@ namespace RPGFramework.ModuleRouter.Tests
         {
             TestRouting routing = new TestRouting();
 
-            ((IBattleArgsStore)routing.BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.DEFAULT, 0, 99));
+            ((IBattleArgsStore)routing.BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.DEFAULT, 99));
 
             ModuleChange change = routing.Router().Route(FieldConstants.MODULE_ID, FieldOutcomes.START_BATTLE);
 

@@ -60,7 +60,7 @@ namespace RPGFramework.ModuleRouter.Tests
 
             ((ICurrentModuleStore)CurrentModule).SetModuleId(CURRENT_MODULE);
             ((IBattleMusicStore)BattleMusic).SetBattleMusic(BATTLE_MUSIC);
-            ((IBattleArgsStore)BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.DEFAULT, 0, 0));
+            ((IBattleArgsStore)BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.DEFAULT, 0));
 
             SerializedObject config = new SerializedObject(Config);
 

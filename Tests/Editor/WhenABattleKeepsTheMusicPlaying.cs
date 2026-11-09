@@ -16,7 +16,7 @@ namespace RPGFramework.ModuleRouter.Tests
         {
             m_Routing = new TestRouting();
 
-            ((IBattleArgsStore)m_Routing.BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.USE_CURRENT_MUSIC, 0, 0));
+            ((IBattleArgsStore)m_Routing.BattleArgs).Set(new BattleArgs(0, 0, BattleFlags.USE_CURRENT_MUSIC, 0));
 
             m_Routing.Router().Route(FieldConstants.MODULE_ID, FieldOutcomes.START_BATTLE);
         }
