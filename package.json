@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "com.rpgframework.audio": "6.0.0",
-    "com.rpgframework.core": "0.9.0",
+    "com.rpgframework.core": "0.9.1",
     "com.rpgframework.core.sharedtypes": "0.3.0",
     "com.rpgframework.field.sharedtypes": "0.3.0",
     "com.rpgframework.menu.sharedtypes": "0.4.0",
