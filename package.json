@@ -14,7 +14,7 @@
     "url": "https://github.com/KandyMan1990/RPGFramework.ModuleRouter"
   },
   "dependencies": {
-    "com.rpgframework.audio": "6.0.0",
+    "com.rpgframework.audio": "7.0.0",
     "com.rpgframework.core": "0.9.1",
     "com.rpgframework.core.sharedtypes": "0.3.0",
     "com.rpgframework.field.sharedtypes": "0.3.0",
