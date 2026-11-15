@@ -4,7 +4,7 @@ The default router between the RPG Framework's modules. A module finishing tells
 game's `IModuleRouter` what follows, and carries it out. This package's `DefaultModuleRouter` holds the framework's own
 routes, and a game with routes of its own hands it what it does not route.
 
-Requires Unity 6000.6 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu, Battle and Debug Room
+Requires Unity 6000.7 or newer, RPGFramework.Core, RPGFramework.Audio and the Core, Field, Menu, Battle and Debug Room
 shared types — and none of the modules themselves, so they stay isolated: the router sits above them, as the game's
 installer does.
 

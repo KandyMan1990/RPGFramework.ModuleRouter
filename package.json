@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "displayName": "RPG Framework Module Router",
   "description": "The default router between the RPG Framework's modules: which module follows what happened in another, and whether it opens over it, closes, replaces it or clears them all",
-  "unity": "6000.6",
+  "unity": "6000.7",
   "keywords": [
     "RPG Framework",
     "Modules",
